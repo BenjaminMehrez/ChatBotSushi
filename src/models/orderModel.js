@@ -4,8 +4,7 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
     cliente: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Client', // Relacion con el esquema de Cliente
+        type: String,
         require: true,
     },
     items: [
@@ -22,6 +21,10 @@ const orderSchema = new mongoose.Schema({
             }
         }
     ],
+    address: {
+        type: String,
+        required: true
+    },
     total: {
         type: Number,
         required: true

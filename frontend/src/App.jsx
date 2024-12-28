@@ -8,7 +8,7 @@ function App() {
 
     return (
         <>
-            <div className='App bg-gray-400 h-screen flex justify-center items-center'>
+            <div className='App h-screen flex justify-center items-center'>
                 <ChatBot />
             </div>
         </>

@@ -1,11 +1,15 @@
+import productModel from "../models/productModel.js";
+
 export const getFAQs = async (req, res) => {
     try {
+
+        // Obtener todos los productos
+        const products = await productModel.find({})
         const faqs = [
-            { question: '¿Están abiertos?', answer: 'Sí, estamos abiertos de lunes a viernes de 10:00 a 20:00.' },
-            { question: '¿Cómo hago un pedido?', answer: 'Para hacer un pedido, selecciona los productos que deseas y haz clic en "Hacer pedido".' },
             { question: '¿Cuánto tarda en llegar mi pedido?', answer: 'El tiempo promedio de entrega es de 30 a 45 minutos.' },
-            { question: '¿Puedo cancelar mi pedido?', answer: 'Sí, siempre y cuando no haya sido despachado. Contáctanos a través del chat en línea.' },
             { question: '¿Cuál es el costo de envío?', answer: 'El costo de envío es de $200.' },
+            { question: '¿Aceptan diferentes métodos de pago?', answer: 'Solo aceptamos pagos en efectivo' },
+            { question: '¿Cuáles son sus platos más populares?', answer: 'Los platos populares son Uramaki dragón y Sashimi mixto.' },
         ];
 
 
@@ -13,6 +17,11 @@ export const getFAQs = async (req, res) => {
         const { question } = req.body;
 
         if (!question) return res.status(400).json({ message: 'Debes enviar una pregunta.' });
+
+        // Manejar la pregunta 'Menu'
+        if (question.toLowerCase() === 'menu'){
+            return res.status(200).json({ answer: products })
+        }
 
         // Buscar la respuesta en las preguntas frecuentes
         const faq = faqs.find(faq => faq.question.toLowerCase() === question.toLowerCase());
