@@ -245,9 +245,9 @@ const ChatBot = () => {
     
 
     return (
-        <div className="flex flex-col justify-between max-w-md mx-auto h-5/6 bg-gray-100 border border-gray-300 rounded-md shadow-lg">
+        <div className="flex flex-col mx-auto max-w-lg h-5/6 bg-zinc-900 text-white rounded-md shadow-lg">
             {/* Header */}
-            <div className="shadow-md py-4 px-6 rounded-t-md text-center">
+            <div className="shadow-md py-4 px-6 text-center ">
                 <h1 className="text-lg font-semibold">ChatBot Sushi</h1>
                 <span className="text-sm">{dateSpanish}</span>
             </div>
@@ -256,11 +256,9 @@ const ChatBot = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex items-start ${msg.sender === 'client' ? 'justify-end' : 'justify-start'}`}>
-                        {msg.sender === 'bot' && (
-                            <img src="/bot.png" alt="Bot" className="w-8 h-8 rounded-full mr-2" />
-                        )}
-                        <span className={`inline-block px-4 py-2 rounded-lg text-sm w-60 drop-shadow-md 
-                            ${msg.sender === 'client' ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'}`}>
+                        {msg.sender === 'bot' && ( <img src="/bot.png" alt="Bot" className="w-8 h-8 rounded-full mr-2" />)}
+                        <span className={`inline-block px-4 py-2 rounded-lg text-sm drop-shadow-md font-medium 
+                            ${msg.sender === 'client' ? 'bg-blue-700 ' : 'bg-slate-200 text-gray-800 mr-40'}`}>
                             {msg.text}
                         </span>
                     </div>
@@ -271,12 +269,12 @@ const ChatBot = () => {
             {/* Action Buttons */}
             {!showFAQButtons && (
                 <div className="p-4 space-y-2">
-                    <h2 className="text-center text-gray-700 font-semibold mb-2">¿En qué puedo ayudarte?</h2>
+                    <h2 className="text-center font-semibold mb-2">¿En qué puedo ayudarte?</h2>
                     <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => handleActionClick('menu')} className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm">Menu</button>
-                        <button onClick={() => handleActionClick('pedido')} className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded text-sm">Hacer Pedido</button>
-                        <button onClick={() => handleActionClick('preguntas')} className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded text-sm">Preguntas Frecuentes</button>
-                        <button onClick={() => handleActionClick('abiertos')} className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded text-sm">¿Están abiertos?</button>
+                        <button onClick={() => handleActionClick('menu')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">Menu</button>
+                        <button onClick={() => handleActionClick('pedido')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">Hacer Pedido</button>
+                        <button onClick={() => handleActionClick('preguntas')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">Preguntas Frecuentes</button>
+                        <button onClick={() => handleActionClick('abiertos')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">¿Están abiertos?</button>
                     </div>
                 </div>
             )}
@@ -284,7 +282,7 @@ const ChatBot = () => {
             {/* FAQ Buttons */}
             {showFAQButtons && (
                 <div className="p-4 space-y-2">
-                    <h2 className="text-center text-gray-700 font-semibold mb-2">Preguntas Frecuentes</h2>
+                    <h2 className="text-center font-semibold mb-2">Preguntas Frecuentes</h2>
                     <div className="grid grid-cols-1 gap-2">
                         {faqs.map((question, index) => (
                             <button key={index} onClick={() => handleFAQClick(question)} className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm">{question}</button>
@@ -295,16 +293,16 @@ const ChatBot = () => {
 
             {/* // Renderizar el flujo de pedido */}
             {orderFlow && (
-                <div className="p-4">
+                <div className="flex justify-between p-4 gap-2">
                     <input
                         type="text"
                         value={orderInput}
                         onChange={(e) => setOrderInput(e.target.value)}
                         placeholder="Ingresa tu respuesta aquí..."
-                        className="w-full p-2 border rounded"
+                        className="w-full text-black p-2 border rounded outline-none font-medium bg-slate-200"
                     />
-                    <button onClick={() => handleOrderInput(orderInput)} className="w-full bg-green-500 text-white mt-2 py-2 rounded">
-                        Enviar
+                    <button onClick={() => handleOrderInput(orderInput)} className="bg-zinc-900 border-white border p-2 rounded">
+                        <img className="w-8" src="/paper.svg" alt="submit" />
                     </button>
                 </div>
             )}
