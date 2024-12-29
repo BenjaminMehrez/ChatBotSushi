@@ -4,19 +4,18 @@ import React, { useState, useEffect, useRef } from "react";
 const ChatBot = () => {
 
     const [messages, setMessages] = useState([{ sender: 'bot', text: '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Selecciona una opción abajo para comenzar.' }]);
-    const [showFAQButtons, setShowFAQButtons] = useState(false);
-    const [orderFlow, setOrderFlow] = useState(false);
-    const [orderStep, setOrderStep] = useState(0);
-    const [orderData, setOrderData] = useState({});
-    const [orderInput, setOrderInput] = useState('');
+    const [showFAQButtons, setShowFAQButtons] = useState(false); // Estado para mostrar las preguntas frecuentes
+    const [orderFlow, setOrderFlow] = useState(false); // Estado para mostrar el flujo de pedido
+    const [orderStep, setOrderStep] = useState(0); // Estado para controlar el paso del pedido
+    const [orderData, setOrderData] = useState({}); // Estado para almacenar los datos del pedido
+    const [orderInput, setOrderInput] = useState(''); // Estado para almacenar el input del pedido
 
+    // Obtener la fecha actual
     const date = new Date()
     const opcions = { weekday: 'long', day: 'numeric', month: 'long' };
     const dateSpanish = new Intl.DateTimeFormat('es-ES', opcions).format(date)
-
-    // Referencia el ultimo mensaje
-    const messagesEndRef = useRef(null);
-
+ 
+    // Preguntas frecuentes
     const faqs = [
         '¿Cuánto tarda en llegar mi pedido?',
         '¿Cuál es el costo de envío?',
@@ -24,12 +23,13 @@ const ChatBot = () => {
         '¿Cuáles son sus platos más populares?'
     ];
 
+    // Referencia el ultimo mensaje
+    const messagesEndRef = useRef(null);
 
     // Funcion para desplazar automaticamente al final
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
-
 
     // Usar efecto para desplegar el scroll al final cuando los mensajes cambien
     useEffect(() => {
@@ -47,7 +47,7 @@ const ChatBot = () => {
                 : action === "pedido"
                 ? "Quiero hacer un pedido."
                 : action === "preguntas"
-                ? "Tengo algunas preguntas frecuentes."
+                ? "Tengo algunas preguntas"
                 : action === "abiertos"
                 ? "¿Están abiertos?"
                 : "Acción no reconocida."
@@ -73,7 +73,7 @@ const ChatBot = () => {
                             <p>Menú:</p>
                             <ul>
                                 {products.map((product) => (
-                                    <li key={product.id}>
+                                    <li key={product._id}>
                                         <strong>ID: {product._id}</strong> - {product.name} - ${product.price}
                                     </li>
                                 ))}
@@ -156,6 +156,7 @@ const ChatBot = () => {
             case 0: // Paso para ingresar el nombre completo
                 newOrderData.client = input;
                 botMessage = 'Por favor, elige un producto del menú. Ingresa el ID del producto.';
+                // console.log('case0',newOrderData);
                 break;
             case 1: // Paso para monstrar menú y recibir ID del producto
                 const productResponse = await fetch('http://localhost:3000/products');
@@ -167,8 +168,9 @@ const ChatBot = () => {
                     break;
                 }
                 
-                newOrderData.items = [{ productId: input, quantity: 0 }]; // Agregar producto al pedido
+                newOrderData.items = [{ _id: input, quantity: 0 }]; // Agregar producto al pedido
                 botMessage = '¿Cuántas unidades de este producto deseas?';
+                // console.log('case1',newOrderData);
                 break;
             case 2: // Paso para pedir la cantidad de productos
                 if (isNaN(input) || parseInt(input, 10) < 1) {
@@ -179,6 +181,7 @@ const ChatBot = () => {
 
                 newOrderData.items[0].quantity = parseInt(input, 10);
                 botMessage = 'Por favor, ingresa tu dirección de envío.';
+                // console.log('case2',newOrderData);
                 break;
             case 3: 
                 newOrderData.address = input;
@@ -193,16 +196,16 @@ const ChatBot = () => {
                         body: JSON.stringify(newOrderData),
                     })
 
-                    const data = response.json();
-                    console.log(data);
+                    const data = await response.json();
+                    // console.log(data);
                     
 
                     if (response.ok) {
                         botMessage = `Pedido realizado con éxito. Resumen del pedido: 
                         Cliente: ${newOrderData.client}
-                        Producto(s): ${data.order.items.map(item => `${item.name} x ${item.quantity}`).join(', ')}
+                        Producto(s): ${data.order.items.map(item => `${item._id} x ${item.quantity}`).join(', ')}
                         Total a pagar: $${data.order.total}.
-                        Dirección de envío: ${newOrderData.address}`;
+                        Dirección de envío: ${data.order.address}`;
                     } else {
                         botMessage = `Hubo un problema al procesar tu pedido: ${data.message}`;
                     }
@@ -210,6 +213,7 @@ const ChatBot = () => {
                 } catch (error) {
                     botMessage = "Error al procesar el pedido. Inténtalo más tarde.";
                 }
+                // console.log('case3',newOrderData);
                 
                 setOrderFlow(false); // Finalizar flujo de pedido
                 break;
@@ -233,7 +237,7 @@ const ChatBot = () => {
 
     const handleOrderInput = (input) => {
         if (input.trim()) {
-            setMessages((prevMessages) => [...prevMessages, { sender: 'bot', text: input }])
+            setMessages((prevMessages) => [...prevMessages, { sender: 'client', text: input }])
             handleOrderStep(input);
             setOrderInput('') // Limpiar el input
         }
