@@ -74,7 +74,7 @@ const ChatBot = () => {
                             <ul>
                                 {products.map((product) => (
                                     <li key={product._id}>
-                                        <strong>ID: {product._id}</strong> - {product.name} - ${product.price}
+                                        <strong>{product.name}</strong> - ${product.price}
                                     </li>
                                 ))}
                             </ul>
@@ -152,25 +152,38 @@ const ChatBot = () => {
         const newOrderData = {...orderData} // Copiar datos previos 
         let botMessage;
 
+        // Obtener los productos
+        const productResponse = await fetch('http://localhost:3000/products');
+        const products = await productResponse.json();
+
         switch (orderStep) {
             case 0: // Paso para ingresar el nombre completo
                 newOrderData.client = input;
-                botMessage = 'Por favor, elige un producto del menú. Ingresa el ID del producto.';
-                // console.log('case0',newOrderData);
+                botMessage = <div>
+                                <span>Por favor, ingresa el número de plato.</span>
+                                <p className="mt-2">Menú:</p>
+                                <ul>
+                                    {products.map((product) => (
+                                        <li key={product.food}>
+                                            <strong>{product.food}</strong> - {product.name} - ${product.price}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>;
+                console.log('case0',newOrderData);
                 break;
             case 1: // Paso para monstrar menú y recibir ID del producto
-                const productResponse = await fetch('http://localhost:3000/products');
-                const products = await productResponse.json();
-
-                if (!products.find(p => p._id === input)) {
+                if (!products.find(p => p.food === parseInt(input))) {
+                    console.log('case1',typeof(input));
+                    
                     botMessage = 'El ID del producto no es válido. Por favor, ingrese un ID válido.';
                     setOrderStep(orderStep); // Repetir paso
                     break;
                 }
                 
-                newOrderData.items = [{ _id: input, quantity: 0 }]; // Agregar producto al pedido
+                newOrderData.items = [{ food: parseInt(input), quantity: 0 }]; // Agregar producto al pedido
                 botMessage = '¿Cuántas unidades de este producto deseas?';
-                // console.log('case1',newOrderData);
+                console.log('case1',newOrderData);
                 break;
             case 2: // Paso para pedir la cantidad de productos
                 if (isNaN(input) || parseInt(input, 10) < 1) {
@@ -181,7 +194,7 @@ const ChatBot = () => {
 
                 newOrderData.items[0].quantity = parseInt(input, 10);
                 botMessage = 'Por favor, ingresa tu dirección de envío.';
-                // console.log('case2',newOrderData);
+                console.log('case2',newOrderData);
                 break;
             case 3: 
                 newOrderData.address = input;
@@ -201,11 +214,20 @@ const ChatBot = () => {
                     
 
                     if (response.ok) {
-                        botMessage = `Pedido realizado con éxito. Resumen del pedido: 
-                        Cliente: ${newOrderData.client}
-                        Producto(s): ${data.order.items.map(item => `${item._id} x ${item.quantity}`).join(', ')}
-                        Total a pagar: $${data.order.total}.
-                        Dirección de envío: ${data.order.address}`;
+                        botMessage = <div>
+                                        <span>Pedido realizado con éxito. Resumen del pedido:</span>
+                                        <p className="mt-2">Cliente: {data.order.client}</p>
+                                        <p className="mt-2">Productos:</p>
+                                        <ul>
+                                            {data.order.items.map((item) => (
+                                                <li key={item.food}>        
+                                                    {item.quantity} x {products.find(p => p.food === item.food).name} - ${item.quantity * products.find(p => p.food === item.food).price}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <p className="mt-2">Total: ${data.order.total}</p>
+                                        <p className="mt-2">Dirección de envío: {data.order.address}</p>
+                                    </div>
                     } else {
                         botMessage = `Hubo un problema al procesar tu pedido: ${data.message}`;
                     }
@@ -213,7 +235,7 @@ const ChatBot = () => {
                 } catch (error) {
                     botMessage = "Error al procesar el pedido. Inténtalo más tarde.";
                 }
-                // console.log('case3',newOrderData);
+                console.log('case3',newOrderData);
                 
                 setOrderFlow(false); // Finalizar flujo de pedido
                 break;
@@ -248,7 +270,7 @@ const ChatBot = () => {
         <div className="flex flex-col mx-auto max-w-lg h-5/6 bg-zinc-900 text-white rounded-md shadow-lg">
             {/* Header */}
             <div className="shadow-md py-4 px-6 text-center ">
-                <h1 className="text-lg font-semibold">ChatBot Sushi</h1>
+                <h1 className="text-lg font-semibold flex justify-center items-center gap-2 py-1"><img className="w-8 h-8" src="sushi.svg" alt="sushi" /> ChatBot Sushi</h1>
                 <span className="text-sm">{dateSpanish}</span>
             </div>
 
@@ -257,8 +279,8 @@ const ChatBot = () => {
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex items-start ${msg.sender === 'client' ? 'justify-end' : 'justify-start'}`}>
                         {msg.sender === 'bot' && ( <img src="/bot.png" alt="Bot" className="w-8 h-8 rounded-full mr-2" />)}
-                        <span className={`inline-block px-4 py-2 rounded-lg text-sm drop-shadow-md font-medium 
-                            ${msg.sender === 'client' ? 'bg-blue-700 ' : 'bg-slate-200 text-gray-800 mr-40'}`}>
+                        <span className={`inline-block px-4 py-2 rounded-lg text-sm font-medium 
+                            ${msg.sender === 'client' ? 'bg-gray-700 ' : 'bg-slate-200 text-gray-800 mr-40'}`}>
                             {msg.text}
                         </span>
                     </div>
@@ -271,10 +293,10 @@ const ChatBot = () => {
                 <div className="p-4 space-y-2">
                     <h2 className="text-center font-semibold mb-2">¿En qué puedo ayudarte?</h2>
                     <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => handleActionClick('menu')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">Menu</button>
-                        <button onClick={() => handleActionClick('pedido')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">Hacer Pedido</button>
-                        <button onClick={() => handleActionClick('preguntas')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">Preguntas Frecuentes</button>
-                        <button onClick={() => handleActionClick('abiertos')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium py-2 px-4 rounded text-sm">¿Están abiertos?</button>
+                        <button onClick={() => handleActionClick('menu')} className="bg-red-700 hover:bg-red-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3"><img className="w-10" src="menu.svg" alt="menu" /> Menu</button>
+                        <button onClick={() => handleActionClick('pedido')} className="bg-green-700 hover:bg-green-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3"><img className="w-6 mr-2" src="order.svg" alt="order" /> Hacer Pedido</button>
+                        <button onClick={() => handleActionClick('preguntas')} className="bg-yellow-700 hover:bg-yellow-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3"><img className="w-6" src="question.svg" alt="question" /> Preguntas Frecuentes</button>
+                        <button onClick={() => handleActionClick('abiertos')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3 py-1"><img className="w-8" src="open.svg" alt="open" /> ¿Están abiertos?</button>
                     </div>
                 </div>
             )}

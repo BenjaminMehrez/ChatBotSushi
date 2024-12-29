@@ -15,9 +15,9 @@ export const createOrder = async (req, res) => {
 
         // Validar productos y calcular total
         for (const item of items) {
-            const product = await productModel.findById(item._id);
+            const product = await productModel.findOne({ food: item.food });
             if (!product) {
-                return res.status(404).json({ message: `Producto con ID ${item._id} no encontrado.` });
+                return res.status(404).json({ message: `Producto con ID ${item.food} no encontrado.` });
             }
             total += product.price * item.quantity;
         }

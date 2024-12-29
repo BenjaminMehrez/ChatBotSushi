@@ -3,15 +3,14 @@ import mongoose from "mongoose";
 
 
 const orderSchema = new mongoose.Schema({
-    cliente: {
+    client: {
         type: String,
         require: true,
     },
     items: [
         {
-            _id: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Product',
+            food: {
+                type: Number,
                 require: true,
             },
             quantity: {
