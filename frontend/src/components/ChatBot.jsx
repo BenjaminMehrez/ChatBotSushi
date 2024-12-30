@@ -63,7 +63,7 @@ const ChatBot = () => {
         if (action === "menu") {
             
             try {
-                const response = await fetch('http://localhost:3000/products');
+                const response = await fetch(process.env.REACT_APP_BACKEND_URL + "/products");
                 const products = await response.json();
 
                 botMessage = {
@@ -120,7 +120,7 @@ const ChatBot = () => {
         setMessages((prevMessages) => [...prevMessages, userMessage])
 
         try {
-            const response = await fetch('http://localhost:3000/faq', {
+            const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/faq', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -153,7 +153,7 @@ const ChatBot = () => {
         let botMessage;
 
         // Obtener los productos
-        const productResponse = await fetch('http://localhost:3000/products');
+        const productResponse = await fetch(process.env.REACT_APP_BACKEND_URL + '/products');
         const products = await productResponse.json();
 
         switch (orderStep) {
@@ -201,7 +201,7 @@ const ChatBot = () => {
                     
                 try {
                     // Enviar pedido al backend
-                    const response = await fetch('http://localhost:3000/orders', {
+                    const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
