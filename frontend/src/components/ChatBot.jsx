@@ -63,7 +63,7 @@ const ChatBot = () => {
         if (action === "menu") {
             
             try {
-                const response = await fetch(process.env.REACT_APP_BACKEND_URL + "/products");
+                const response = await fetch("http://localhost:3000/products");
                 const products = await response.json();
 
                 botMessage = {
