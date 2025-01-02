@@ -10,6 +10,9 @@ const ChatBot = () => {
     const [orderData, setOrderData] = useState({}); // Estado para almacenar los datos del pedido
     const [orderInput, setOrderInput] = useState(''); // Estado para almacenar el input del pedido
 
+    // URL de la API
+    const API = process.env.API_URL
+
     // Obtener la fecha actual
     const date = new Date()
     const opcions = { weekday: 'long', day: 'numeric', month: 'long' };
@@ -61,9 +64,9 @@ const ChatBot = () => {
         let botMessage;
 
         if (action === "menu") {
-            
+
             try {
-                const response = await fetch("http://localhost:3000/products");
+                const response = await fetch(`${API}/products`);
                 const products = await response.json();
 
                 botMessage = {
@@ -120,7 +123,7 @@ const ChatBot = () => {
         setMessages((prevMessages) => [...prevMessages, userMessage])
 
         try {
-            const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/faq', {
+            const response = await fetch(`${API}/faq`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -153,7 +156,7 @@ const ChatBot = () => {
         let botMessage;
 
         // Obtener los productos
-        const productResponse = await fetch(process.env.REACT_APP_BACKEND_URL + '/products');
+        const productResponse = await fetch(`${API}/products`);
         const products = await productResponse.json();
 
         switch (orderStep) {
@@ -201,7 +204,7 @@ const ChatBot = () => {
                     
                 try {
                     // Enviar pedido al backend
-                    const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/orders', {
+                    const response = await fetch(`${API}/orders`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
