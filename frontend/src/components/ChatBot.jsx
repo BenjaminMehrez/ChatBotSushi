@@ -284,7 +284,7 @@ const ChatBot = () => {
                     <div key={index} className={`flex items-start ${msg.sender === 'client' ? 'justify-end' : 'justify-start'}`}>
                         {msg.sender === 'bot' && ( <img src="/bot.png" alt="Bot" className="w-8 h-8 rounded-full mr-2" />)}
                         <span className={`inline-block px-4 py-2 rounded-lg text-sm font-medium 
-                            ${msg.sender === 'client' ? 'bg-gray-700 ' : 'bg-slate-200 text-gray-800 mr-40'}`}>
+                            ${msg.sender === 'client' ? 'bg-gray-700 ' : 'bg-slate-200 text-gray-800 mr-10'}`}>
                             {msg.text}
                         </span>
                     </div>
