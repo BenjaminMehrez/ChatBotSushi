@@ -64,9 +64,10 @@ const ChatBot = () => {
         let botMessage;
 
         if (action === "menu") {
-            console.log('API:', API);
+            // console.log('API:', API);
             
             try {
+                setOrderFlow(false); // Desactivar flujo de pedido
                 const response = await fetch(`${API}/products`);
                 const products = await response.json();
 
@@ -94,6 +95,7 @@ const ChatBot = () => {
             setOrderStep(0); // Reiniciar el paso del flujo
             botMessage = { sender: "bot", text: "Por favor, dime tu nombre para comenzar con el pedido." };
         } else if (action === "preguntas") {
+            setOrderFlow(false); // Desactivar flujo de pedido
             // Logica para preguntas frecuentes
             setShowFAQButtons(true);
             botMessage = {
@@ -101,6 +103,7 @@ const ChatBot = () => {
                 text: "Aquí están algunas preguntas frecuentes. Selecciona una para obtener más información.",
             };
         } else if (action === "abiertos") {
+            setOrderFlow(false); // Desactivar flujo de pedido
             botMessage = {
                 sender: "bot",
                 text: date.getHours() >= 10 && date.getHours() < 20
@@ -271,7 +274,7 @@ const ChatBot = () => {
     
 
     return (
-        <div className="flex flex-col mx-auto max-w-lg h-5/6 bg-zinc-900 text-white rounded-md shadow-lg">
+        <div className="flex flex-col mx-auto min-w-lg max-w-lg h-5/6 bg-zinc-900 text-white rounded-md shadow-lg">
             {/* Header */}
             <div className="shadow-md py-4 px-6 text-center ">
                 <h1 className="text-lg font-semibold flex justify-center items-center gap-2 py-1"><img className="w-8 h-8" src="sushi.svg" alt="sushi" /> ChatBot Sushi</h1>
@@ -279,12 +282,12 @@ const ChatBot = () => {
             </div>
 
             {/* Chat Body */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar">
                 {messages.map((msg, index) => (
                     <div key={index} className={`flex items-start ${msg.sender === 'client' ? 'justify-end' : 'justify-start'}`}>
-                        {msg.sender === 'bot' && ( <img src="/bot.png" alt="Bot" className="w-8 h-8 rounded-full mr-2" />)}
-                        <span className={`inline-block px-4 py-2 rounded-lg text-sm font-medium 
-                            ${msg.sender === 'client' ? 'bg-gray-700 ' : 'bg-slate-200 text-gray-800 mr-10'}`}>
+                        {msg.sender === 'bot' && ( <img src="/bot.png" alt="Bot" className="w-8 h-8 rounded-full mr-2   " />)}
+                        <span className={`max-w-60 py-2 px-4 rounded-lg text-sm font-medium 
+                            ${msg.sender === 'client' ? 'bg-gray-700' : 'bg-slate-200 text-gray-800'}`}>
                             {msg.text}
                         </span>
                     </div>
@@ -297,10 +300,10 @@ const ChatBot = () => {
                 <div className="p-4 space-y-2">
                     <h2 className="text-center font-semibold mb-2">¿En qué puedo ayudarte?</h2>
                     <div className="grid grid-cols-2 gap-2">
-                        <button onClick={() => handleActionClick('menu')} className="bg-red-700 hover:bg-red-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3"><img className="w-10" src="menu.svg" alt="menu" /> Menu</button>
-                        <button onClick={() => handleActionClick('pedido')} className="bg-green-700 hover:bg-green-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3"><img className="w-6 mr-2" src="order.svg" alt="order" /> Hacer Pedido</button>
-                        <button onClick={() => handleActionClick('preguntas')} className="bg-yellow-700 hover:bg-yellow-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3"><img className="w-6" src="question.svg" alt="question" /> Preguntas Frecuentes</button>
-                        <button onClick={() => handleActionClick('abiertos')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3 py-1"><img className="w-8" src="open.svg" alt="open" /> ¿Están abiertos?</button>
+                        <button onClick={() => handleActionClick('menu')} className="bg-red-700 hover:bg-red-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3 py-1"><img className="w-10" src="menu.svg" alt="menu" /> Menu</button>
+                        <button onClick={() => handleActionClick('pedido')} className="bg-green-700 hover:bg-green-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3 py-1"><img className="w-6 ml-4 sm:ml-0" src="order.svg" alt="order" /> Hacer Pedido</button>
+                        <button onClick={() => handleActionClick('preguntas')} className="bg-yellow-700 hover:bg-yellow-800 text-white font-medium rounded text-sm flex items-center justify-center pr-4 py-1"><img className="w-6" src="question.svg" alt="question" /> Preguntas</button>
+                        <button onClick={() => handleActionClick('abiertos')} className="bg-blue-700 hover:bg-blue-800 text-white font-medium rounded text-sm flex items-center justify-center pr-3 py-1"><img className="w-8 ml-2 sm:ml-0" src="open.svg" alt="open" /> ¿Están abiertos?</button>
                     </div>
                 </div>
             )}
