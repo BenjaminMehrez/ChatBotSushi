@@ -11,7 +11,7 @@ const ChatBot = () => {
     const [orderInput, setOrderInput] = useState(''); // Estado para almacenar el input del pedido
 
     // URL de la API
-    const API = process.env.API_URL
+    const API = import.meta.env.VITE_API
 
     // Obtener la fecha actual
     const date = new Date()
@@ -64,7 +64,8 @@ const ChatBot = () => {
         let botMessage;
 
         if (action === "menu") {
-
+            console.log('API:', API);
+            
             try {
                 const response = await fetch(`${API}/products`);
                 const products = await response.json();
