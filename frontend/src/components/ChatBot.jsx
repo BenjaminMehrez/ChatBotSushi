@@ -154,116 +154,125 @@ const ChatBot = () => {
             ]);
         }
     }
-
     const handleOrderStep = async (input) => {
-        const newOrderData = {...orderData} // Copiar datos previos 
+        const newOrderData = { ...orderData }; // Copiar datos previos
         let botMessage;
-
-        // Obtener los productos
-        const productResponse = await fetch(`${API}/products`);
-        const products = await productResponse.json();
-
-        switch (orderStep) {
-            case 0: // Paso para ingresar el nombre completo
-                newOrderData.client = input;
-                botMessage = <div>
-                                <span>Por favor, ingresa el número de plato.</span>
-                                <p className="mt-2">Menú:</p>
-                                <ul>
-                                    {products.map((product) => (
-                                        <li key={product.food}>
-                                            <strong>{product.food}</strong> - {product.name} - ${product.price}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>;
-                console.log('case0',newOrderData);
-                break;
-            case 1: // Paso para monstrar menú y recibir ID del producto
-                if (!products.find(p => p.food === parseInt(input))) {
-                    console.log('case1',typeof(input));
-                    
-                    botMessage = 'El ID del producto no es válido. Por favor, ingrese un ID válido.';
-                    setOrderStep(orderStep); // Repetir paso
+    
+        try {
+            // Obtener los productos
+            const productResponse = await fetch(`${API}/products`);
+            if (!productResponse.ok) throw new Error("Error al obtener los productos");
+            const products = await productResponse.json();
+    
+            switch (orderStep) {
+                case 0: // Paso para ingresar el nombre completo
+                    newOrderData.client = input;
+                    botMessage = (
+                        <div>
+                            <span>Por favor, ingresa el número de plato.</span>
+                            <p className="mt-2">Menú:</p>
+                            <ul>
+                                {products.map((product) => (
+                                    <li key={product.food}>
+                                        <strong>{product.food}</strong> - {product.name} - ${product.price}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    );
                     break;
-                }
-                
-                newOrderData.items = [{ food: parseInt(input), quantity: 0 }]; // Agregar producto al pedido
-                botMessage = '¿Cuántas unidades de este producto deseas?';
-                console.log('case1',newOrderData);
-                break;
-            case 2: // Paso para pedir la cantidad de productos
-                if (isNaN(input) || parseInt(input, 10) < 1) {
-                    botMessage = 'Por favor, ingresa una cantidad válida.';
-                    setOrderStep(orderStep); // Repetir paso
-                    break;
-                }    
-
-                newOrderData.items[0].quantity = parseInt(input, 10);
-                botMessage = 'Por favor, ingresa tu dirección de envío.';
-                console.log('case2',newOrderData);
-                break;
-            case 3: 
-                newOrderData.address = input;
-                    
-                try {
-                    // Enviar pedido al backend
-                    const response = await fetch(`${API}/orders`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(newOrderData),
-                    })
-
-                    const data = await response.json();
-                    // console.log(data);
-                    
-
-                    if (response.ok) {
-                        botMessage = <div>
-                                        <span>Pedido realizado con éxito. Resumen del pedido:</span>
-                                        <p className="mt-2">Cliente: {data.order.client}</p>
-                                        <p className="mt-2">Productos:</p>
-                                        <ul>
-                                            {data.order.items.map((item) => (
-                                                <li key={item.food}>        
-                                                    {item.quantity} x {products.find(p => p.food === item.food).name} - ${item.quantity * products.find(p => p.food === item.food).price}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <p className="mt-2">Total: ${data.order.total}</p>
-                                        <p className="mt-2">Dirección de envío: {data.order.address}</p>
-                                    </div>
-                    } else {
-                        botMessage = `Hubo un problema al procesar tu pedido: ${data.message}`;
+    
+                case 1: // Paso para mostrar menú y recibir ID del producto
+                    const selectedProduct = products.find((p) => p.food === parseInt(input));
+                    if (!selectedProduct) {
+                        botMessage = "El ID del producto no es válido. Por favor, ingrese un ID válido.";
+                        break;
                     }
-
-                } catch (error) {
-                    botMessage = "Error al procesar el pedido. Inténtalo más tarde.";
-                }
-                console.log('case3',newOrderData);
-                
-                setOrderFlow(false); // Finalizar flujo de pedido
-                break;
-                
-            default:
-                botMessage = "Algo salió mal. Por favor, intenta nuevamente.";
-                setOrderFlow(false); // Terminar flujo en caso de error
-                break;
+    
+                    newOrderData.items = newOrderData.items || [];
+                    newOrderData.items.push({ food: selectedProduct.food, quantity: 0 });
+    
+                    botMessage = `¿Cuántas unidades de ${selectedProduct.name} deseas?`;
+                    break;
+    
+                case 2: // Paso para pedir la cantidad de productos
+                    const quantity = parseInt(input, 10);
+                    if (isNaN(quantity) || quantity < 1) {
+                        botMessage = "Por favor, ingresa una cantidad válida.";
+                        break;
+                    }
+    
+                    const lastItemIndex = newOrderData.items.length - 1;
+                    newOrderData.items[lastItemIndex].quantity = quantity;
+    
+                    botMessage = '¿Quieres agregar otro producto? Ingresa el ID del producto. Si no, escribe "no".';
+                    break;
+    
+                case 3: // Confirmar agregar más productos o pedir dirección
+                    if (input.toLowerCase() === "no") {
+                        botMessage = "Por favor, ingresa la dirección de entrega.";
+                    } else {
+                        setOrderStep(1); // Volver al paso de seleccionar producto
+                        setOrderData(newOrderData);
+                        return;
+                    }
+                    break;
+    
+                case 4: // Enviar pedido
+                    newOrderData.address = input;
+    
+                    try {
+                        const response = await fetch(`${API}/orders`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(newOrderData),
+                        });
+    
+                        const data = await response.json();
+                        if (response.ok) {
+                            botMessage = (
+                                <div>
+                                    <span>Pedido realizado con éxito. Resumen del pedido:</span>
+                                    <p className="mt-2">Cliente: {data.order.client}</p>
+                                    <ul>
+                                        {data.order.items.map((item) => (
+                                            <li key={item.food}>
+                                                {item.quantity} x {products.find((p) => p.food === item.food).name} - $
+                                                {item.quantity * products.find((p) => p.food === item.food).price}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <p className="mt-2">Total: ${data.order.total}</p>
+                                    <p className="mt-2">Dirección de envío: {data.order.address}</p>
+                                </div>
+                            );
+                        } else {
+                            botMessage = `Hubo un problema al procesar tu pedido: ${data.message}`;
+                        }
+                    } catch (error) {
+                        botMessage = "Error al procesar el pedido. Inténtalo más tarde.";
+                    }
+    
+                    setOrderFlow(false); // Finalizar flujo de pedido
+                    break;
+    
+                default:
+                    botMessage = "Algo salió mal. Por favor, intenta nuevamente.";
+                    setOrderFlow(false);
+                    break;
+            }
+    
+            // Actualizar datos del pedido y avanzar al siguiente paso
+            setOrderData(newOrderData);
+            setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: botMessage }]);
+            if (orderStep < 4) setOrderStep(orderStep + 1);
+    
+        } catch (error) {
+            console.error("Error en el manejo del pedido:", error);
+            setMessages((prevMessages) => [...prevMessages, { sender: "bot", text: "Hubo un error inesperado. Inténtalo nuevamente." }]);
         }
-
-        // Actualizar datos del pedido
-        setOrderData(newOrderData);
-        setMessages((prevMessages) => [...prevMessages, { sender: 'bot', text: botMessage}])
-
-        // Avanzar al siguiente paso de pedido
-        if (orderStep < 3) {
-            setOrderStep(orderStep + 1);
-        }
-
-    }
-
+    };
+    
     const handleOrderInput = (input) => {
         if (input.trim()) {
             setMessages((prevMessages) => [...prevMessages, { sender: 'client', text: input }])
