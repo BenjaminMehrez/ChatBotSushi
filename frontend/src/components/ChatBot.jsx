@@ -367,7 +367,7 @@ const ChatBot = () => {
                     <h2 className="text-center font-semibold mb-2">Preguntas Frecuentes</h2>
                     <div className="grid grid-cols-1 gap-2">
                         {faqs.map((question, index) => (
-                            <button key={index} onClick={() => handleFAQClick(question)} className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded text-sm">{question}</button>
+                            <button key={index} onClick={() => handleFAQClick(question)} className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-8 rounded text-sm">{question}</button>
                         ))}
                     </div>
                 </div>
