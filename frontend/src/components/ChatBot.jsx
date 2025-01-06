@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 
 const ChatBot = () => {
 
-    const [messages, setMessages] = useState([{ sender: 'bot', text: '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Selecciona una opción abajo para comenzar.' }]);
+    const [messages, setMessages] = useState([{ sender: 'bot', text: '¡Hola! 👋 ¿En qué puedo ayudarte hoy? Selecciona una opción abajo para comenzar.' }]); // Estado para almacenar los mensajes
     const [showFAQButtons, setShowFAQButtons] = useState(false); // Estado para mostrar las preguntas frecuentes
     const [orderFlow, setOrderFlow] = useState(false); // Estado para mostrar el flujo de pedido
     const [orderStep, setOrderStep] = useState(0); // Estado para controlar el paso del pedido
@@ -154,8 +154,12 @@ const ChatBot = () => {
             ]);
         }
     }
+
     const handleOrderStep = async (input) => {
         const newOrderData = { ...orderData }; // Copiar datos previos
+
+        console.log(newOrderData);
+        
         let botMessage;
     
         try {
@@ -165,7 +169,7 @@ const ChatBot = () => {
             const products = await productResponse.json();
     
             switch (orderStep) {
-                case 0: // Paso para ingresar el nombre completo
+                case 0: // Paso para mostrar menú
                     newOrderData.client = input;
                     botMessage = (
                         <div>
@@ -180,19 +184,25 @@ const ChatBot = () => {
                             </ul>
                         </div>
                     );
+                    console.log('case0', newOrderData);
+                    
                     break;
     
                 case 1: // Paso para mostrar menú y recibir ID del producto
                     const selectedProduct = products.find((p) => p.food === parseInt(input));
                     if (!selectedProduct) {
-                        botMessage = "El ID del producto no es válido. Por favor, ingrese un ID válido.";
+                        botMessage = "El plato ingresado no es válido. Por favor, ingrese un plato válido.";
+                        setTimeout(() => setOrderStep(orderStep), 0); // Retornamos al paso actual
                         break;
                     }
-    
+                    
                     newOrderData.items = newOrderData.items || [];
                     newOrderData.items.push({ food: selectedProduct.food, quantity: 0 });
     
                     botMessage = `¿Cuántas unidades de ${selectedProduct.name} deseas?`;
+                    console.log('case1', newOrderData);
+
+
                     break;
     
                 case 2: // Paso para pedir la cantidad de productos
@@ -201,22 +211,45 @@ const ChatBot = () => {
                         botMessage = "Por favor, ingresa una cantidad válida.";
                         break;
                     }
-    
+                
                     const lastItemIndex = newOrderData.items.length - 1;
                     newOrderData.items[lastItemIndex].quantity = quantity;
-    
-                    botMessage = '¿Quieres agregar otro producto? Ingresa el ID del producto. Si no, escribe "no".';
+                
+                    botMessage = '¿Quieres agregar otro producto? Ingresa el plato del producto. Si no, escribe "no".';
+                
+                    // Actualizamos los datos y avanzamos al paso 3
+                    setOrderData(newOrderData);
+                    setTimeout(() => setOrderStep(3), 0); // Aseguramos la transición al paso 3
+                    console.log('case2', newOrderData);
+
                     break;
+                
     
                 case 3: // Confirmar agregar más productos o pedir dirección
                     if (input.toLowerCase() === "no") {
                         botMessage = "Por favor, ingresa la dirección de entrega.";
+                        setOrderStep(4); // Avanzar al paso 4
                     } else {
-                        setOrderStep(1); // Volver al paso de seleccionar producto
-                        setOrderData(newOrderData);
-                        return;
+                        const selectedProduct = products.find((p) => p.food === parseInt(input));
+                        if (!selectedProduct) {
+                            botMessage = "El plato ingresado no es válido. Por favor, ingrese un plato válido.";
+                        } else {
+                            // Agregar el producto al pedido
+                            newOrderData.items = newOrderData.items || [];
+                            newOrderData.items.push({ food: selectedProduct.food, quantity: 0 });
+                
+                            // Actualizar estado y enviar mensaje
+                            botMessage = `¿Cuántas unidades de ${selectedProduct.name} deseas?`;
+                
+                            // Forzar la actualización del paso 2 mediante una función o una cola
+                            setOrderData(newOrderData); // Actualiza el pedido
+                            setTimeout(() => setOrderStep(2), 0); // Garantiza que el cambio de paso ocurra después de renderizar
+                        }
                     }
+                    console.log('case3', newOrderData);
+
                     break;
+                    
     
                 case 4: // Enviar pedido
                     newOrderData.address = input;
@@ -252,6 +285,8 @@ const ChatBot = () => {
                     } catch (error) {
                         botMessage = "Error al procesar el pedido. Inténtalo más tarde.";
                     }
+                    console.log('case4', newOrderData);
+
     
                     setOrderFlow(false); // Finalizar flujo de pedido
                     break;
