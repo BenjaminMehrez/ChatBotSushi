@@ -68,9 +68,10 @@ const ChatBot = () => {
             
             try {
                 setOrderFlow(false); // Desactivar flujo de pedido
-                const response = await fetch(`${API}/products`);
-                const products = await response.json();
+                const response = await fetch(`${API}/products`); // Obtener los productos
+                const products = await response.json(); // Convertir la respuesta a JSON
 
+                // Mostrar el menú
                 botMessage = {
                     sender: "bot",
                     text: (
@@ -117,17 +118,17 @@ const ChatBot = () => {
             };
         }
 
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
+        setMessages((prevMessages) => [...prevMessages, botMessage]); // Agregar la respuesta al historial
     }
 
-
+    // Funcion para manejar las preguntas frecuentes
     const handleFAQClick = async (question) => {
         setShowFAQButtons(false); // Cierra las preguntas frecuentes
-        const userMessage = { sender: 'client', text: question}
-        setMessages((prevMessages) => [...prevMessages, userMessage])
+        const userMessage = { sender: 'client', text: question} // Agregar el input al historial
+        setMessages((prevMessages) => [...prevMessages, userMessage]) // Agregar el input al historial
 
         try {
-            const response = await fetch(`${API}/faq`, {
+            const response = await fetch(`${API}/faq`, { // Realizar la solicitud
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -167,7 +168,7 @@ const ChatBot = () => {
             };
         }
 
-        console.log(newOrderData);
+        // console.log(newOrderData);
         
         let botMessage;
     
@@ -193,7 +194,7 @@ const ChatBot = () => {
                             </ul>
                         </div>
                     );
-                    console.log('case0', newOrderData);
+                    // console.log('case0', newOrderData);
                     
                     break;
     
@@ -205,12 +206,12 @@ const ChatBot = () => {
                         break;
                     }
                     
-                    newOrderData.items = newOrderData.items || [];
+                    // Agregar el producto al pedido
+                    newOrderData.items = newOrderData.items || []; 
                     newOrderData.items.push({ food: selectedProduct.food, quantity: 0 });
     
                     botMessage = `¿Cuántas unidades de ${selectedProduct.name} deseas?`;
-                    console.log('case1', newOrderData);
-
+                    // console.log('case1', newOrderData);
 
                     break;
     
@@ -219,8 +220,13 @@ const ChatBot = () => {
                     if (isNaN(quantity) || quantity < 1) {
                         botMessage = "Por favor, ingresa una cantidad válida.";
                         break;
+                    } else if (quantity > 10) {
+                        botMessage = "Por favor, ingresa una cantidad menor a 10.";
+                        setTimeout(() => setOrderStep(orderStep), 0); // Retornamos al paso actual
+                        break;
                     }
                 
+                    // Actualizar la cantidad del producto
                     const lastItemIndex = newOrderData.items.length - 1;
                     newOrderData.items[lastItemIndex].quantity = quantity;
                 
@@ -229,7 +235,7 @@ const ChatBot = () => {
                     // Actualizamos los datos y avanzamos al paso 3
                     setOrderData(newOrderData);
                     setTimeout(() => setOrderStep(3), 0); // Aseguramos la transición al paso 3
-                    console.log('case2', newOrderData);
+                    // console.log('case2', newOrderData);
 
                     break;
                 
@@ -239,9 +245,12 @@ const ChatBot = () => {
                         botMessage = "Por favor, ingresa la dirección de entrega.";
                         setOrderStep(4); // Avanzar al paso 4
                     } else {
-                        const selectedProduct = products.find((p) => p.food === parseInt(input));
+                        const selectedProduct = products.find((p) => p.food === parseInt(input)); // Buscar el producto seleccionado
                         if (!selectedProduct) {
                             botMessage = "El plato ingresado no es válido. Por favor, ingrese un plato válido.";
+                        } else if (newOrderData.items.some((item) => item.food === selectedProduct.food)) {
+                            botMessage = `Ya agregaste ${selectedProduct.name}. Por favor, ingresa otro plato.`;
+                            setTimeout(() => setOrderStep(orderStep), 0); // Retornamos al paso actual
                         } else {
                             // Agregar el producto al pedido
                             newOrderData.items = newOrderData.items || [];
@@ -255,23 +264,25 @@ const ChatBot = () => {
                             setTimeout(() => setOrderStep(2), 0); // Garantiza que el cambio de paso ocurra después de renderizar
                         }
                     }
-                    console.log('case3', newOrderData);
+                    // console.log('case3', newOrderData);
 
                     break;
                     
     
                 case 4: // Enviar pedido
-                    newOrderData.address = input;
+                    newOrderData.address = input; // Actualizar la dirección
     
                     try {
-                        const response = await fetch(`${API}/orders`, {
+                        const response = await fetch(`${API}/orders`, { // Realizar la solicitud
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(newOrderData),
                         });
     
                         const data = await response.json();
-                        if (response.ok) {
+
+                        // Mostrar el resumen del pedido
+                        if (response.ok) { 
                             botMessage = (
                                 <div>
                                     <span>Pedido realizado con éxito. Resumen del pedido:</span>
@@ -294,7 +305,7 @@ const ChatBot = () => {
                     } catch (error) {
                         botMessage = "Error al procesar el pedido. Inténtalo más tarde.";
                     }
-                    console.log('case4', newOrderData);
+                    // console.log('case4', newOrderData);
 
     
                     setOrderFlow(false); // Finalizar flujo de pedido
@@ -302,7 +313,7 @@ const ChatBot = () => {
     
                 default:
                     botMessage = "Algo salió mal. Por favor, intenta nuevamente.";
-                    setOrderFlow(false);
+                    setOrderFlow(false); // Finalizar flujo de pedido
                     break;
             }
     
@@ -319,8 +330,8 @@ const ChatBot = () => {
     
     const handleOrderInput = (input) => {
         if (input.trim()) {
-            setMessages((prevMessages) => [...prevMessages, { sender: 'client', text: input }])
-            handleOrderStep(input);
+            setMessages((prevMessages) => [...prevMessages, { sender: 'client', text: input }]) // Agregar el input al historial
+            handleOrderStep(input); // Manejar el input
             setOrderInput('') // Limpiar el input
         }
     };
