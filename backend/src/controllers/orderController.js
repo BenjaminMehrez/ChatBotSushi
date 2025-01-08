@@ -3,7 +3,7 @@ import productModel from '../models/productModel.js';
 
 export const createOrder = async (req, res) => {
     try {
-        console.log('Datos recibidos en el servidor:', req.body); // Verifica los datos aquí
+        // console.log('Datos recibidos en el servidor:', req.body); // Verifica los datos aquí
         const { client, items, address } = req.body;
         
 
@@ -28,7 +28,7 @@ export const createOrder = async (req, res) => {
 
         res.status(201).json({ message: 'Pedido creado exitosamente.', order: newOrder });
     } catch (error) {
-        res.status(500).json({ message: 'Error al crear el pedido.', error: error.message });
+        res.status(400).json({ message: 'Error al crear el pedido.', error: error.message });
     }
 };
 
