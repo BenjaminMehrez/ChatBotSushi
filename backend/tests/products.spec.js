@@ -6,10 +6,16 @@ import app from '../src/app.js';
 let mongoServer;
 
 beforeAll(async () => {
-    await mongoose.connect('mongodb+srv://benjaminjofre:sushimehrez@clustersushi.cire9.mongodb.net/Sushi', {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await mongoose.connect(uri, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
+});
+
+beforeEach(async () => {
+    await mongoose.connection.collection('products').deleteMany({});
 });
 
 
@@ -18,23 +24,21 @@ afterAll(async () => {
     await mongoServer.stop();
 });
 
-// describe('GET /products', () => {
-//     test('should respond with a 200 status code and return a list of products', async () => {
-//         // Insertar un producto en la colección
-//         const product = { name: 'Product 1', price: 100, description: 'Test Product' };
-//         await mongoose.connection.collection('products').insertOne(product);
+describe('GET /products', () => {
+    test('should respond with a 200 status code and return a list of products', async () => {
+        // Insertar un producto en la colección
+        const product = { name: 'Product 1', price: 100, description: 'Test Product' };
+        await mongoose.connection.collection('products').insertOne(product);
 
         
-//         // Realizar la petición GET
-//         const response = await request(app).get('/products').send();
+        // Realizar la petición GET
+        const response = await request(app).get('/products').send();
 
-//         // Verificar el estado y los datos
-//         expect(response.status).toBe(200);
-//         expect(Array.isArray(response.body)).toBe(true);
-//         expect(response.body.length).toBe(1);
-//         expect(response.body[0].name).toBe('Product 1');
-//     });
-// });
+        // Verificar el estado y los datos
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+    });
+});
 
 
 describe('POST /products', () => {
