@@ -9,7 +9,7 @@ Este proyecto implementa un chatbot interactivo para un restaurante de sushi, qu
 1. **Clonar el repositorio**:
    ```bash
    git clone https://github.com/BenjaminMehrez/ChatBotSushi.git
-   cd ChatBotSuhi
+   cd ChatBotSushi
 
    cd backend
    cd frontend
