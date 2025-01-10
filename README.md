@@ -9,6 +9,8 @@ Este proyecto implementa un chatbot interactivo para un restaurante de sushi, qu
 1. **Clonar el repositorio**:
    ```bash
    git clone https://github.com/BenjaminMehrez/ChatBotSushi.git
+   cd ChatBotSuhi
+
    cd backend
    cd frontend
    ```
@@ -24,7 +26,7 @@ Este proyecto implementa un chatbot interactivo para un restaurante de sushi, qu
    Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
    ```env
    # Para backend
-   MONGO_URI=mongodb://localhost:27017/sushi-chatbot
+   MONGO_URI=TU_BASE_DE_DATOS
    PORT=3000
 
    # Para frontend
