@@ -31,8 +31,11 @@ const ChatBot = () => {
 
     // Funcion para desplazar automaticamente al final
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+        if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === 'function') {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+      
 
     // Usar efecto para desplegar el scroll al final cuando los mensajes cambien
     useEffect(() => {
