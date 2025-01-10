@@ -45,28 +45,28 @@ describe('POST /faqs', () => {
         ]);
     });
 
-    test('Debería devolver una respuesta válida para una pregunta frecuente', async () => {
+    test('should respond with a 200 status code and return an answer', async () => {
         const response = await request(app).post('/faq').send({ question: '¿Cuánto tarda en llegar mi pedido?' });
 
         expect(response.status).toBe(200);
         expect(response.body.answer).toBe('El tiempo promedio de entrega es de 30 a 45 minutos.');
     });
 
-    test('Debería devolver un error 404 para una pregunta desconocida', async () => {
+    test('should respond with a 404 status code and return an error message', async () => {
         const response = await request(app).post('/faq').send({ question: '¿Cuáles son sus horarios?' });
 
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('No encontré una respuesta a tu pregunta.');
     });
 
-    test('Debería devolver un error 400 si no se envía una pregunta', async () => {
+    test('should respond with a 400 status code and return an error message', async () => {
         const response = await request(app).post('/faq').send({});
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Debes enviar una pregunta.');
     });
 
-    test('Debería manejar errores del servidor correctamente', async () => {
+    test('should respond with a 500 status code and return an error message', async () => {
         // Simula un error en el modelo
         jest.spyOn(productModel, 'find').mockRejectedValue(new Error('Error simulado'));
 
