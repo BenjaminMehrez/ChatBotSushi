@@ -95,9 +95,16 @@ const ChatBot = () => {
             }
 
         } else if (action === "pedido") {
-            setOrderFlow(true); // Activar flujo de pedido
-            setOrderStep(0); // Reiniciar el paso del flujo
-            botMessage = { sender: "bot", text: "Por favor, dime tu nombre para comenzar con el pedido." };
+            if (date.getHours() >= 10 && date.getHours() < 20) {
+                setOrderFlow(true); // Activar flujo de pedido
+                setOrderStep(0); // Reiniciar el paso del flujo
+                botMessage = { sender: "bot", text: "Por favor, dime tu nombre para comenzar con el pedido." };
+            } else {
+                botMessage = {
+                    sender: "bot",
+                    text: "Lo siento, estamos cerrados. Nuestro horario es de lunes a viernes de 10:00 a 20:00.",
+                };
+            }
         } else if (action === "preguntas") {
             setOrderFlow(false); // Desactivar flujo de pedido
             // Logica para preguntas frecuentes

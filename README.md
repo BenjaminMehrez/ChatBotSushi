@@ -26,7 +26,7 @@ Este proyecto implementa un chatbot interactivo para un restaurante de sushi, qu
    Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
    ```env
    # Para backend
-   MONGO_URI=TU_BASE_DE_DATOS
+   MONGO_URL=TU_BASE_DE_DATOS
    PORT=3000
 
    # Para frontend
