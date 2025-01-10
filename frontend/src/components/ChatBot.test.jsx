@@ -12,7 +12,7 @@ describe('ChatBot Component', () => {
         render(<ChatBot />);
         expect(screen.getByText(/ChatBot Sushi/i)).toBeDefined();
     });
-
+    
     test('displays the initial message from the bot', () => {
         render(<ChatBot />);
         expect(screen.getByText('¡Hola! 👋 ¿En qué puedo ayudarte hoy? Selecciona una opción abajo para comenzar.')).toBeDefined();
@@ -37,6 +37,7 @@ describe('ChatBot Component', () => {
 
         fireEvent.click(openButton);
 
+        // Espera a que aparezca el mensaje del bot
         await waitFor(() => {
             const responseMessage = screen.getByText(/Sí, estamos abiertos.|Lo siento, estamos cerrados./i);
             expect(responseMessage).toBeDefined();
@@ -47,8 +48,10 @@ describe('ChatBot Component', () => {
         render(<ChatBot />);
         const button  = screen.getByText(/Menu/i)
 
+        // Click the button
         fireEvent.click(button)
         
+        // Espera a que aparezca el mensaje del bot
         await waitFor(() => {
             const responseMessage = screen.getByText(/Nigiri de atún|Sashimi mixto /i);
             expect(responseMessage).toBeDefined();
@@ -67,6 +70,7 @@ describe('ChatBot Component', () => {
             expect(screen.getByText(/Aquí están algunas preguntas frecuentes/i)).toBeDefined();
         });
     
+        // Paso 2: Haz clic en la pregunta "¿Cuánto tarda en llegar mi pedido?"
         const faq1 = await screen.findByText(/¿Cuánto tarda en llegar mi pedido?/i);
         const faq2 = await screen.findByText(/¿Cuál es el costo de envío?/i);
         const faq3 = await screen.findByText(/¿Aceptan diferentes métodos de pago?/i);
