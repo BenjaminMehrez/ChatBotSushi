@@ -14,4 +14,7 @@ export default defineConfig({
     environment: "jsdom",
     globals: true
   },
+  server: {
+    allowedHosts: ['chatbotsushi-front.onrender.com']
+  }
 })
