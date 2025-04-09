@@ -1,18 +1,14 @@
-import './index.css'
-import ChatBot from './components/ChatBot'
-
-
-
+import "./index.css";
+import ChatBot from "./components/ChatBot";
 
 function App() {
-
-    return (
-        <>
-            <div className='App h-screen flex justify-center items-center px-4'>
-                <ChatBot />
-            </div>
-        </>
-    )
+  return (
+    <>
+      <div className="App h-screen flex justify-center items-center px-4">
+        <ChatBot />
+      </div>
+    </>
+  );
 }
 
-export default App
+export default App;

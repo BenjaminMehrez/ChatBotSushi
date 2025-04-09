@@ -1,13 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 body{
     font-family: "Montserrat", serif;
     font-optical-sizing: auto;
     background-image: linear-gradient(0deg,
             rgba(0, 0, 0, 0.7),
-            rgba(0, 0, 0, 0.7)), url("../public/hero.jpg");
+            rgba(0, 0, 0, 0.7)), url("/public/hero.jpg");
 }
 
 
